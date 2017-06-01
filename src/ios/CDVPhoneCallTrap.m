@@ -16,7 +16,7 @@
         if ([call.callState isEqualToString: CTCallStateConnected])
         {
             NSLog(@"OFFHOOK");
-            callState = @"Connected";
+            callState = @"OFFHOOK";
         }
         else if ([call.callState isEqualToString: CTCallStateDialing])
         {
