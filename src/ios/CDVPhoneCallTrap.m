@@ -1,52 +1,41 @@
 
-
 #import "CDVPhoneCallTrap.h"
 #import <CoreTelephony/CTCallCenter.h>
 #import <CoreTelephony/CTCall.h>
 
-
 @implementation CDVPhoneCallTrap
 
-//handle calls
--(void)onCall:(CDVInvokedUrlCommand*)command
+- (void) onCall:(CDVInvokedUrlCommand*)command
 {
     self.callCenter = [[CTCallCenter alloc] init];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callReceived:) name:CTCallStateIncoming object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callEnded:) name:CTCallStateDisconnected object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callConnected:) name:CTCallStateConnected object:nil];
-
-    self.callCenter.callEventHandler = ^(CTCall *call){
+    
+    self.callCenter.callEventHandler = ^(CTCall *call) {
         
-        NSString *callState;
+        NSString *callState = @"Ringing";
         
         if ([call.callState isEqualToString: CTCallStateConnected])
         {
-            NSLog(@"call CTCallStateConnected - OFFHOOK");
-            callState = @"OFFHOOK";
+            NSLog(@"OFFHOOK");
+            callState = @"Connected";
         }
         else if ([call.callState isEqualToString: CTCallStateDialing])
         {
-            NSLog(@"call CTCallStateDialing - OFFHOOK");
-            callState = @"OFFHOOK";
         }
         else if ([call.callState isEqualToString: CTCallStateDisconnected])
         {
-            NSLog(@"call CTCallStateDisconnected - IDLE");
+            NSLog(@"IDLE");
             callState = @"IDLE";
         }
         else if ([call.callState isEqualToString: CTCallStateIncoming])
         {
-            NSLog(@"call CTCallStateIncoming - RINGING");
+            NSLog(@"RINGING");
             callState = @"RINGING";
         }
-        else  {
-            NSLog(@"call NO - IDLE");
-            callState = @"IDLE";
-        }
         
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:callState];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString* jsMethod = [NSString stringWithFormat:@"phoneEventCallBack('%@');", callState];
+            [self.webViewEngine evaluateJavaScript:jsMethod completionHandler:^(id identifier, NSError *error) {}];
+        });
     };
 }
 

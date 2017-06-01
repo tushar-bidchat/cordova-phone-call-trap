@@ -61,9 +61,10 @@ class CallStateListener extends PhoneStateListener {
             break;
         }
 
-        PluginResult result = new PluginResult(PluginResult.Status.OK, msg);
-        result.setKeepCallback(true);
+        // PluginResult result = new PluginResult(PluginResult.Status.OK, msg);
+        // result.setKeepCallback(true);
+        // callbackContext.sendPluginResult(result);
 
-        callbackContext.sendPluginResult(result);
+        this.webView.sendJavascript("phoneEventCallBack('" + msg + "');");
     }
 }
