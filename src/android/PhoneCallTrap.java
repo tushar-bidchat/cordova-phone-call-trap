@@ -18,7 +18,7 @@ public class PhoneCallTrap extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         prepareListener();
 
-        listener.setCallbackContext(callbackContext);
+        listener.setCallbackContext(callbackContext, this);
 
         return true;
     }
@@ -35,9 +35,11 @@ public class PhoneCallTrap extends CordovaPlugin {
 class CallStateListener extends PhoneStateListener {
 
     private CallbackContext callbackContext;
+    private CordovaPlugin mPlugin;
 
-    public void setCallbackContext(CallbackContext callbackContext) {
+    public void setCallbackContext(CallbackContext callbackContext, CordovaPlugin plugim) {
         this.callbackContext = callbackContext;
+        this.mPlugin = plugim;
     }
 
     public void onCallStateChanged(int state, String incomingNumber) {
@@ -61,10 +63,6 @@ class CallStateListener extends PhoneStateListener {
             break;
         }
 
-        // PluginResult result = new PluginResult(PluginResult.Status.OK, msg);
-        // result.setKeepCallback(true);
-        // callbackContext.sendPluginResult(result);
-
-        this.webView.sendJavascript("phoneEventCallBack('" + msg + "');");
+        this.mPlugin.webView.sendJavascript("phoneEventCallBack('" + msg + "');");
     }
 }
